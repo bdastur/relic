@@ -119,7 +119,10 @@ class RemoteExecutor(object):
             for host in result['contacted'].keys():
                 print "%s:" % host
                 print "-" * len(host)
-                print result['contacted'][host]['stdout']
+                try:
+                    print result['contacted'][host]['stdout']
+                except KeyError:
+                    print "No stdout"
                 print "\n-- output end --\n"
 
 
