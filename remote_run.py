@@ -13,6 +13,7 @@ import argparse
 import getpass
 import spam.ansirunner
 from threading import Thread
+import subprocess
 
 
 class WaitIndicator(Thread):
@@ -66,11 +67,15 @@ class RemoteExecutor(object):
         '''
         Check connectivity to all the remote hosts.
         '''
+        waiter = WaitIndicator()
+        waiter.start()
         result, _ = self.runner.ansible_perform_operation(
             host_list=self.host_list,
             remote_user=self.username,
             remote_pass=self.password,
             module="ping")
+        waiter.stop_waiting()
+        waiter.join()
 
         print "[",
         for host in result['dark'].keys():
@@ -80,10 +85,16 @@ class RemoteExecutor(object):
             print "%s: %s, " % (host, "ok"),
         print "]\n"
 
-    def exec_local_operation(self):
+    def exec_local_operation(self, cmd):
         '''
         Perform a local operation
         '''
+        try:
+            sproc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            output = sproc.communicate()[0]
+            print output
+        except OSError as oserr:
+            print "oserror: %s" % oserr
 
     def exec_remote_operation(self):
         '''
@@ -99,7 +110,9 @@ class RemoteExecutor(object):
                 break
 
             if cmd.startswith("local:"):
-                self.exec_local_operation()
+                cmd = cmd.split("local:")[1].strip().split(" ")
+                self.exec_local_operation(cmd)
+                continue
 
             if len(cmd) <= 0:
                 continue
