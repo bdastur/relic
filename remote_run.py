@@ -60,6 +60,7 @@ class RemoteExecutor(object):
 
         self.host_list = args.remote_hosts
         self.runner = spam.ansirunner.AnsibleRunner()
+        self.state = "remote"
         os.environ["ANSIBLE_HOST_KEY_CHECKING"] = "False"
         self.check_host_connectivity()
 
@@ -104,13 +105,25 @@ class RemoteExecutor(object):
 
         while True:
             waiter = WaitIndicator()
-            cmd = raw_input("> ")
+            if self.state == "remote":
+                cmd = raw_input("> ")
+            elif self.state == "local":
+                cmd = raw_input("local> ")
 
             if cmd in ['quit', 'Quit', 'exit']:
-                break
+                if self.state == "local":
+                    self.state = "remote"
+                    continue
+                else:
+                    break
 
             if cmd.startswith("local:"):
-                cmd = cmd.split("local:")[1].strip().split(" ")
+                # Change state to local.
+                self.state = "local"
+                continue
+
+            if self.state == "local":
+                cmd = cmd.strip().split(" ")
                 self.exec_local_operation(cmd)
                 continue
 
