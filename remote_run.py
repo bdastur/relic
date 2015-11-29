@@ -50,9 +50,6 @@ class RemoteExecutor(object):
 
         if args.askpass:
             self.password = getpass.getpass("Password: ")
-            #self.password = password.replace(" ", "")
-            #self.password = "".join(password.split())
-            #print "password:", self.password, "."
             if self.password == "lab":
                 print "lab is printed"
 
