@@ -15,7 +15,8 @@ max-module-lines=2000
 
 
 [MESSAGE CONTROL]
-disable=import-error, missing-docstring, invalid-name
+disable=import-error, missing-docstring, invalid-name, too-many-instance-attributes, no-self-use
+
 
 
 [SIMILARITIES]

@@ -12,6 +12,7 @@ import itertools
 import argparse
 import getpass
 import spam.ansirunner
+import spam.ansiInventory
 from threading import Thread
 import subprocess
 
@@ -50,12 +51,39 @@ class RemoteExecutor(object):
 
         if args.askpass:
             self.password = getpass.getpass("Password: ")
-            if self.password == "lab":
-                print "lab is printed"
+        else:
+            self.password = None
+
+        if args.asksudopass:
+            self.sudo_pass = getpass.getpass(
+                "Sudo password [Default ssh password]")
+            if len(self.sudo_pass) == 0:
+                self.sudo_pass = self.password
+            self.sudo = True
+            self.sudo_user = 'root'
+        else:
+            self.sudo = False
+            self.sudo_user = None
+            self.sudo_pass = None
 
         self.username = getpass.getuser()
 
-        self.host_list = args.remote_hosts
+        if args.remote_hosts:
+            self.host_list = args.remote_hosts
+        else:
+            self.host_list = None
+
+        if args.group:
+            self.host_group = args.group[0]
+        else:
+            self.host_group = "all"
+
+        if args.inventory_file:
+            self.inventory = spam.ansiInventory.AnsibleInventory(
+                args.inventory_file[0])
+            self.host_list = self.inventory.get_hosts(
+                self.host_group)[0]['hostlist']
+
         self.runner = spam.ansirunner.AnsibleRunner()
         self.state = "remote"
         os.environ["ANSIBLE_HOST_KEY_CHECKING"] = "False"
@@ -173,22 +201,34 @@ def parse_arguments():
         description=show_help())
     parser.add_argument("-r", "--remote_hosts",
                         nargs='+',
-                        required=True,
+                        required=False,
                         help="Enter a list of hosts to run the commands on")
+    parser.add_argument("-i", "--inventory_file",
+                        nargs='+',
+                        required=False,
+                        help="Enter the ansible inventory file")
+    parser.add_argument("-g", "--group",
+                        nargs='+',
+                        required=False,
+                        help="Enter the host group [default all]")
     parser.add_argument("--askpass",
                         help="Ansible operation will prompt for user password",
                         action="store_true")
+    parser.add_argument("--asksudopass",
+                        help="Ansible operation will prompt for sudo password",
+                        action="store_true")
+
     args = parser.parse_args()
+
+    if not args.remote_hosts and not args.inventory_file:
+        print "Require either -r <host list> or -i <inventory file option"
+        sys.exit()
 
     return args
 
 
 def main():
     args = parse_arguments()
-
-    if not args.remote_hosts:
-        print "require to specify hosts"
-        return
 
     rexec = RemoteExecutor(args)
     rexec.exec_remote_operation()
