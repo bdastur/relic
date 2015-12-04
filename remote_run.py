@@ -161,6 +161,9 @@ class RemoteExecutor(object):
                 host_list=self.host_list,
                 remote_user=self.username,
                 remote_pass=self.password,
+                sudo=self.sudo,
+                sudo_user=self.sudo_user,
+                sudo_pass=self.sudo_pass,
                 module="shell",
                 module_args=cmd)
 
