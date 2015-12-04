@@ -161,7 +161,7 @@ class RemoteExecutor(object):
                 host_list=self.host_list,
                 remote_user=self.username,
                 remote_pass=self.password,
-                module="command",
+                module="shell",
                 module_args=cmd)
 
             waiter.stop_waiting()
