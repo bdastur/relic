@@ -81,6 +81,10 @@ class RemoteExecutor(object):
         if args.inventory_file:
             self.inventory = spam.ansiInventory.AnsibleInventory(
                 args.inventory_file[0])
+            if not self.inventory.get_hosts(self.host_group):
+                print "No hosts found for group %s" % self.host_group
+                sys.exit()
+
             self.host_list = self.inventory.get_hosts(
                 self.host_group)[0]['hostlist']
 
@@ -225,6 +229,10 @@ def parse_arguments():
 
     if not args.remote_hosts and not args.inventory_file:
         print "Require either -r <host list> or -i <inventory file option"
+        sys.exit()
+
+    if not os.path.exists(args.inventory_file):
+        print "%s not found. Invalid inventory file" % args.inventory_file
         sys.exit()
 
     return args
