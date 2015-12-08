@@ -232,8 +232,8 @@ def parse_arguments():
         sys.exit()
 
     if args.inventory_file and \
-            not os.path.exists(args.inventory_file):
-        print "%s not found. Invalid inventory file" % args.inventory_file
+            not os.path.exists(args.inventory_file[0]):
+        print "%s not found. Invalid inventory file" % args.inventory_file[0]
         sys.exit()
 
     return args
