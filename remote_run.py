@@ -231,7 +231,8 @@ def parse_arguments():
         print "Require either -r <host list> or -i <inventory file option"
         sys.exit()
 
-    if not os.path.exists(args.inventory_file):
+    if args.inventory_file and \
+            not os.path.exists(args.inventory_file):
         print "%s not found. Invalid inventory file" % args.inventory_file
         sys.exit()
 
