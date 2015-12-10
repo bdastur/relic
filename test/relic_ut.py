@@ -3,13 +3,13 @@
 
 
 import unittest
-import relic.comparator
+import relic.parser
 
 
 class RELICUT(unittest.TestCase):
     def test_basic(self):
         print "basic test"
-        comparator = relic.comparator.Comparator()
+        parser = relic.parser.Parser()
 
         kwargs = {}
         kwargs['type'] = 'ini'
@@ -42,11 +42,11 @@ class RELICUT(unittest.TestCase):
         '''
         kwargs['datalist'].append(node)
 
-        comparator.compare(**kwargs)
+        parser.display_tabular(**kwargs)
 
     def test_simple_string(self):
         print "simple string"
-        comparator = relic.comparator.Comparator()
+        parser = relic.parser.Parser()
 
         kwargs = {}
         kwargs['type'] = 'text'
@@ -65,7 +65,7 @@ class RELICUT(unittest.TestCase):
 
         kwargs['datalist'].append(node)
 
-        comparator.compare(**kwargs)
+        parser.display_tabular(**kwargs)
 
 
 

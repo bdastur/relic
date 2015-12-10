@@ -10,9 +10,9 @@ from prettytable import PrettyTable
 import textwrap
 
 
-class Comparator(object):
+class Parser(object):
     '''
-    Comparator class.
+    Parser class - To parse results from remote hosts.
     '''
     def __init__(self):
 
@@ -20,7 +20,7 @@ class Comparator(object):
         Initialize comparator.
         '''
 
-    def compare(self, **kwargs):
+    def display_tabular(self, **kwargs):
         '''
         Compare operation. Main function
         '''
