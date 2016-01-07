@@ -11,8 +11,8 @@ import time
 import itertools
 import argparse
 import getpass
-import spam.ansirunner
-import spam.ansiInventory
+import pyansible.ansirunner
+import pyansible.ansiInventory
 from threading import Thread
 import subprocess
 
@@ -79,7 +79,7 @@ class RemoteExecutor(object):
             self.host_group = "all"
 
         if args.inventory_file:
-            self.inventory = spam.ansiInventory.AnsibleInventory(
+            self.inventory = pyansible.ansiInventory.AnsibleInventory(
                 args.inventory_file[0])
             if not self.inventory.get_hosts(self.host_group):
                 print "No hosts found for group %s" % self.host_group
@@ -88,7 +88,7 @@ class RemoteExecutor(object):
             self.host_list = self.inventory.get_hosts(
                 self.host_group)[0]['hostlist']
 
-        self.runner = spam.ansirunner.AnsibleRunner()
+        self.runner = pyansible.ansirunner.AnsibleRunner()
         self.state = "remote"
         os.environ["ANSIBLE_HOST_KEY_CHECKING"] = "False"
         self.check_host_connectivity()
