@@ -68,7 +68,10 @@ class RemoteExecutor(object):
             self.sudo_user = None
             self.sudo_pass = None
 
-        self.username = getpass.getuser()
+        if not args.username:
+            self.username = getpass.getuser()
+        else:
+            self.username = args.username
 
         if args.remote_hosts:
             self.host_list = args.remote_hosts
@@ -259,6 +262,10 @@ def parse_arguments():
                         nargs='+',
                         required=False,
                         help="Run any adhoc command on remote host")
+    parser.add_argument("--username",
+                        required=False,
+                        type=str,
+                        help="Username for remote access.")
     parser.add_argument("--password",
                         required=False,
                         type=str,
