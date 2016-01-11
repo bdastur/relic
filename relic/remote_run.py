@@ -49,7 +49,9 @@ class RemoteExecutor(object):
         Initialize the executor.
         '''
 
-        if args.askpass:
+        if args.password:
+            self.password = args.password
+        elif args.askpass:
             self.password = getpass.getpass("Password: ")
         else:
             self.password = None
@@ -125,6 +127,35 @@ class RemoteExecutor(object):
             print output
         except OSError as oserr:
             print "oserror: %s" % oserr
+
+    def exec_adhoc_operation(self, cmd):
+        '''
+        A single operation on hosts,
+        '''
+        if cmd is None or len(cmd) == 0:
+            print "cmd required."
+            return
+        os.environ["ANSIBLE_HOST_KEY_CHECKING"] = "False"
+
+        result, _ = self.runner.ansible_perform_operation(
+            host_list=self.host_list,
+            remote_user=self.username,
+            remote_pass=self.password,
+            sudo=self.sudo,
+            sudo_user=self.sudo_user,
+            sudo_pass=self.sudo_pass,
+            module="shell",
+            module_args=cmd)
+
+        #Display results.
+        for host in result['contacted'].keys():
+            print "%s:" % host
+            print "-" * len(host)
+            try:
+                print result['contacted'][host]['stdout']
+            except KeyError:
+                print "No stdout"
+            print "\n-- output end --\n"
 
     def exec_remote_operation(self):
         '''
@@ -224,6 +255,14 @@ def parse_arguments():
     parser.add_argument("--asksudopass",
                         help="Ansible operation will prompt for sudo password",
                         action="store_true")
+    parser.add_argument("--adhoc",
+                        nargs='+',
+                        required=False,
+                        help="Run any adhoc command on remote host")
+    parser.add_argument("--password",
+                        required=False,
+                        type=str,
+                        help="Password for remote user (required if adhoc option is chosen).")
 
     args = parser.parse_args()
 
@@ -242,8 +281,19 @@ def parse_arguments():
 def main():
     args = parse_arguments()
 
-    rexec = RemoteExecutor(args)
-    rexec.exec_remote_operation()
+    if args.adhoc is not None:
+        if args.password is None:
+            print "password required for adhoc operation"
+            sys.exit()
+        # With password option, --askpass and --akssudopass are not needed.
+        args.askpass = args.asksudopass = None
+   
+    rexec = RemoteExecutor(args) 
+    if args.adhoc is not None:
+        cmd = " ".join(args.adhoc)
+        rexec.exec_adhoc_operation(cmd)
+    else:
+        rexec.exec_remote_operation()
 
 
 
